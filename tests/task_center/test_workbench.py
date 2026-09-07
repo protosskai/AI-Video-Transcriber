@@ -109,7 +109,7 @@ class WorkbenchTests(unittest.TestCase):
     def test_workbench_and_csp(self):
         r=self.client.get('/workbench/')
         self.assertEqual(r.status_code,200)
-        self.assertIn('转录工作台',r.text)
+        self.assertIn('音视频转文字',r.text)
         self.assertIn("script-src 'self'",r.headers['content-security-policy'])
         self.assertEqual(self.client.get('/health').json()['status'],'ok')
 
