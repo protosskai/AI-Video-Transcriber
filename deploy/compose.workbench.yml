@@ -1,0 +1,38 @@
+# Standalone project: docker compose -p transcriber-workbench -f deploy/compose.workbench.yml ...
+services:
+  web:
+    image: ${TC_IMAGE:-transcriber-workbench:test}
+    build:
+      context: ..
+      dockerfile: deploy/workbench.Dockerfile
+      args:
+        RUNTIME_IMAGE: ${TC_RUNTIME_IMAGE:-transcriber-runtime}
+    ports:
+      - "127.0.0.1:${TC_PORT:-18000}:8000"
+    environment:
+      TC_DATA_DIR: /data/task-center
+      UPLOAD_MAX_MB: ${UPLOAD_MAX_MB:-200}
+    volumes:
+      - "${TC_HOST_DATA:?Set TC_HOST_DATA}:/data/task-center"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+  worker:
+    image: ${TC_IMAGE:-transcriber-workbench:test}
+    command: ["python3", "-m", "extensions.task_center.worker"]
+    env_file:
+      - ${TC_ENV_FILE:?Set external TC_ENV_FILE}
+    environment:
+      TC_DATA_DIR: /data/task-center
+      WHISPER_MODEL_SIZE: ${WHISPER_MODEL_SIZE:-large-v3}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cuda}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-float16}
+    volumes:
+      - "${TC_HOST_DATA:?Set TC_HOST_DATA}:/data/task-center"
+      - "${TC_MODEL_CACHE:?Set TC_MODEL_CACHE}:/root/.cache/huggingface"
+    gpus: all
+    restart: unless-stopped
+    stop_grace_period: 10s

@@ -50,7 +50,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 app.mount("/static", StaticFiles(directory=str(PROJECT_ROOT / "static")), name="static")
 
 # 创建临时目录
-TEMP_DIR = PROJECT_ROOT / "temp"
+TEMP_DIR = Path(os.getenv("TRANSCRIBER_TEMP_DIR", str(PROJECT_ROOT / "temp")))
 TEMP_DIR.mkdir(exist_ok=True)
 
 # 初始化处理器
@@ -65,6 +65,14 @@ import threading
 TASKS_FILE = TEMP_DIR / "tasks.json"
 tasks_lock = threading.Lock()
 
+# Optional explicit integration point for the fork's isolated worker.
+# Original Web/CLI behaviour is unchanged unless an observer is registered.
+task_observer = None
+
+def register_task_observer(observer):
+    global task_observer
+    task_observer = observer
+
 def load_tasks():
     """加载任务状态"""
     try:
@@ -77,6 +85,8 @@ def load_tasks():
 
 def save_tasks(tasks_data):
     """保存任务状态"""
+    if task_observer is not None:
+        task_observer(tasks_data)
     try:
         with tasks_lock:
             with open(TASKS_FILE, 'w', encoding='utf-8') as f:

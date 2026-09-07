@@ -20,7 +20,7 @@ class Translator:
         model: Optional[str] = None,
     ):
         self.client = None
-        self._translation_model = model or os.getenv("OPENAI_TRANSLATION_MODEL", "gpt-4o")
+        self._translation_model = model or os.getenv("OPENAI_TRANSLATION_MODEL") or os.getenv("OPENAI_MODEL") or "gpt-4o"
 
         self.language_map = {
             "zh": "中文（简体）",

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>转录工作台</title>
+  <link rel="stylesheet" href="/workbench/assets/style.css">
+  <script type="module" src="/workbench/assets/app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/workbench/">转录工作台<span>把声音，留成文字</span></a><div class="top-actions"><span id="connection" role="status">正在连接</span><button id="new-task" class="primary">＋ 新建任务</button></div></header>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <main class="workspace">
+    <aside id="sidebar" aria-label="任务列表">
+      <div class="sidebar-head"><h1>我的任务 <span id="total">0</span></h1><p id="queue-summary">正在读取任务</p>
+        <label class="sr-only" for="search">搜索任务标题</label><input id="search" type="search" placeholder="搜索任务标题…">
+        <nav class="filters" aria-label="筛选任务"><button data-filter="" aria-pressed="true">全部</button><button data-filter="active">进行中</button><button data-filter="completed">已完成</button><button data-filter="failed">异常</button></nav>
+      </div>
+      <div id="task-list" class="task-list" aria-live="polite"><p class="empty">正在读取任务…</p></div>
+      <footer class="pagination"><button id="previous" aria-label="上一页">上一页</button><span id="page-label">第 1 页</span><button id="next" aria-label="下一页">下一页</button></footer>
+      <p class="sidebar-note">任务保存在服务器，关闭页面不影响执行。</p>
+    </aside>
+    <section id="detail" class="detail" aria-label="任务详情">
+      <div class="welcome"><span class="welcome-mark">文</span><h2>每一次转录，都有迹可循</h2><p>从左侧选择任务，查看执行进度或重新阅读结果。<br>也可以新建任务，提交视频链接或上传文件。</p><button class="primary" id="empty-new">新建第一个任务</button></div>
+    </section>
+  </main>
+  <dialog id="create-dialog" aria-labelledby="dialog-title">
+    <form id="create-form">
+      <div class="dialog-head"><div><h2 id="dialog-title">新建转录任务</h2><p>任务按提交顺序执行，不必停留在此页面。</p></div><button type="button" id="close-dialog" aria-label="关闭">×</button></div>
+      <div class="source-tabs"><button type="button" data-source="url" aria-pressed="true">视频链接</button><button type="button" data-source="upload">上传文件</button></div>
+      <div id="url-field"><label for="video-url">视频链接</label><input id="video-url" type="url" placeholder="https://www.bilibili.com/video/…"></div>
+      <div id="upload-field" hidden><label for="upload-file">音视频或文本文件</label><input id="upload-file" type="file" accept=".txt,.mp3,.mp4,.wav,.m4a,.webm,.mkv,.ogg,.flac,.mov"><p class="hint">支持 TXT、MP3、MP4、WAV 等。默认上限 200 MB。</p></div>
+      <div class="settings-row"><div><label for="language">结果语言</label><select id="language"><option value="zh">中文（简体）</option><option value="en">English</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="pt">Português</option><option value="ru">Русский</option><option value="ar">العربية</option></select></div><label class="check"><input type="checkbox" id="keep-video">保留原视频缓存</label></div>
+      <p class="hint">使用服务器已配置的模型。与原文语言不同时，会额外生成翻译。</p>
+      <p id="form-error" class="error" role="alert" hidden></p>
+      <div class="dialog-footer"><button type="button" id="cancel-dialog">取消</button><button type="submit" id="submit" class="primary">加入队列</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

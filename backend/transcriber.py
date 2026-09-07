@@ -8,14 +8,14 @@ logger = logging.getLogger(__name__)
 class Transcriber:
     """音频转录器，使用Faster-Whisper进行语音转文字"""
     
-    def __init__(self, model_size: str = "base"):
+    def __init__(self, model_size: Optional[str] = None):
         """
         初始化转录器
         
         Args:
             model_size: Whisper模型大小 (tiny, base, small, medium, large)
         """
-        self.model_size = model_size
+        self.model_size = model_size or os.getenv("WHISPER_MODEL_SIZE", "base")
         self.model = None
         self.last_detected_language = None
         
@@ -24,7 +24,10 @@ class Transcriber:
         if self.model is None:
             logger.info(f"正在加载Whisper模型: {self.model_size}")
             try:
-                self.model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
+                device = os.getenv("WHISPER_DEVICE", "cpu")
+                compute_type = os.getenv("WHISPER_COMPUTE_TYPE", "float16" if device == "cuda" else "int8")
+                logger.info("Whisper device=%s compute_type=%s", device, compute_type)
+                self.model = WhisperModel(self.model_size, device=device, compute_type=compute_type)
                 logger.info("模型加载完成")
             except Exception as e:
                 logger.error(f"模型加载失败: {str(e)}")
@@ -156,7 +159,7 @@ class Transcriber:
             lines = transcript_text.split('\n')
             for line in lines:
                 if "**Detected Language:**" in line:
-                    lang = line.split(":")[-1].strip()
+                    lang = line.split(":", 1)[-1].strip().strip("*").strip()
                     return lang if lang else None
         
         return None

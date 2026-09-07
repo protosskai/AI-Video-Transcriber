@@ -65,3 +65,12 @@ temp/
 # Model cache
 models/
 .cache/
+
+# Local deployment configuration and operational records
+deploy/production.env
+docs/production-deployment.md
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+model_cache/
+worker.env
